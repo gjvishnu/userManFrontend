@@ -72,7 +72,7 @@ export default function Create(){
                               <option>user</option>
                             </select>
                          </div>
-                         <div><input type="submit" value='create' className="p-2 inputs mt-2"/></div>
+                         <div><input type="submit" value='create' className="p-2 inputs submitInpt mt-2"/></div>
                        </Form>
                    </div>
                    </section>

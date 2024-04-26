@@ -21,3 +21,6 @@ tr:nth-child(even) {
     width: 250px;
     border: 1px solid black;
 }
+.submitInpt{
+    cursor: pointer;
+}

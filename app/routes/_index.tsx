@@ -2,9 +2,12 @@ import type { MetaFunction } from "@remix-run/node";
 import Navbar from "~/components/navbar";
 import {client} from '../lib/graphQL_client';
 import {gql} from 'graphql-request'
-import { Link, useLoaderData } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import type { ActionFunctionArgs } from "@remix-run/node";
 
- 
+
+
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
@@ -23,6 +26,13 @@ query{
   }
 }
 `
+const deleteQurie = gql`
+mutation DeleteUser($input: deleteUserInput!) {
+  deleteUser(input: $input) {
+    id 
+  }
+}
+`
 
  export const  loader = async ()=>{
   try{
@@ -33,20 +43,40 @@ query{
     console.log(e);
     return 'error while fetching all users data'
   }
+  
+}
 
+export async function action({ request }: ActionFunctionArgs) {
+
+  const body = await request.formData()
+  const iD = body.get('userId')
+
+
+  try{
+    await client.request(deleteQurie,{
+      input : {
+        id : parseInt(iD)
+      }
+    })
+    return 'done'
+     }
+   catch(e){
+  console.log(e);
+  return 'error'
+   }
 }
 
 export default function Index() {
  const loaderData =  useLoaderData()
-
+  
   return (
     <>
     <Navbar/>
 
 <div className="userTableMain container mx-auto mt-5   px-5">
- <button className="bg-blue-500 hover:bg-blue-700 my-5  text-white font-bold py-2 px-4 rounded">
+ <Link to={'/create'}> <button className="bg-blue-500 hover:bg-blue-700 my-5  text-white font-bold py-2 px-4 rounded">
   Add user
-</button> 
+</button> </Link>
 <table>
     <thead>
         <tr>
@@ -60,14 +90,14 @@ export default function Index() {
         </tr>
     </thead>
     <tbody>
-      {loaderData && loaderData.allUsers.map(e=>(
-        <tr key={e.id}>
-            <td key={e.id} className="text-center">{e.id}</td>
-            <td  key={e.id} className="text-center">{e.name}</td>
-            <td  key={e.id} className="text-center">{e.email}</td>
-            <td key={e.id} className="text-center">{e.role}</td>
-            <td key={e.id} className="text-center">{e.designation}</td>
-            <td key={e.id} className="text-center"><Link to={`/edit/${e.id}`}>Edit</Link> & <Link>Delete</Link></td>
+      {loaderData && loaderData.allUsers.map(data=>(
+            <tr key={data.id}>
+            <td key={data.id} className="text-center">{data.id}</td>
+            <td key={data.id} className="text-center">{data.name}</td>
+            <td key={data.id} className="text-center">{data.email}</td>
+            <td key={data.id} className="text-center">{data.role}</td>
+            <td key={data.id} className="text-center">{data.designation}</td>
+            <td key={data.id} className="text-center"><Link to={`/edit/${data.id}`}>Edit</Link> & <Form method="post"> <input type="hidden" name="userId" value={data.id}/><button type="submit">Delete</button> </Form></td>
         </tr>
       ))}
         

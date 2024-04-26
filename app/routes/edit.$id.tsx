@@ -21,10 +21,7 @@ query GetUserById($id: Int!) {
 `
 
 export const  loader = async ({ params })=>{
-
   const { id } = params;
-
-
   try{
     const data = await client.request(getSingle,{
       id: parseInt(id)
@@ -41,7 +38,6 @@ export const  loader = async ({ params })=>{
 const updateQuery = gql`
 mutation update($input: updateUserInput!) {
   updateUser(input: $input) {
-    
     email
     name
     role
@@ -54,23 +50,23 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const body = await request.formData();
     
-const updateData = {
- id : body.get('userId'),
-  name :  body.get('name'),
-  email : body.get('email'),
-  designation : body.get('designation'),
-  role : body.get('role')
-}
+ const updateData = {
+  id: parseInt(body.get('userId')), // Convert id to integer
+  name: body.get('name'),
+  email: body.get('email'),
+  designation: body.get('designation'),
+  role: body.get('role')
+ }
 
  const updated = await client.request(updateQuery,{
-input : updateData
+ input : updateData
 
- })
- return redirect("/");
-  } catch (error) {
-    console.error("An error occurred:", error);
-    return 'error while updating'
+  })
+  return redirect("/");
+ } catch (error) {
+   console.error("An error occurred:", error);   return 'error while updating'
   }
+ 
 }
 
 
@@ -96,23 +92,24 @@ const [designation ,setdesignation] = useState(loaderData.userById.designation)
               <div><input onChange={(e)=>setEmail(e.target.value)} className=" p-2 my-3 inputs" type="email" name='email' value={email}/></div>
               <div>
               <select onChange={(e)=>setdesignation(e.target.value)} value={designation} name='designation' className="p-2 my-3 inputs">
-                   <option disabled selected>{designation}</option>
-                   <option>Developer</option>
-                   <option>Tester</option>
-                   <option>designer</option>
-                   <option>AWS</option>
+                   <option disabled selected value=''>Select a desigination</option>
+                   <option value='Developer'>Developer</option>
+                   <option value='Tester'>Tester</option>
+                   <option value='designer'>designer</option>
+                   <option value='AWS'>AWS</option>
                  </select>
               </div>
             <div>  <input type="hidden" name="userId" value={loaderData.userById.id} /></div>
 
               <div>
-              <select onChange={(e)=>setRole(e.target.value)} name="role" value={role} className=" p-2 inputs">
-                    <option selected disabled>{role}</option>
-                   <option>Admin</option>
-                   <option>user</option>
-                 </select>
+              <select onChange={(e) => setRole(e.target.value)} name="role" value={role} className="p-2 inputs">
+                   <option disabled value="">Select a role</option>
+                   <option value="Admin">Admin</option>
+                   <option value="user">User</option>
+               </select>
+
               </div>
-              <div><input type="submit" value='update' className="p-2 inputs mt-2"/></div>
+              <div><input type="submit" value='update' className="p-2 inputs submitInpt mt-2"/></div>
             </Form>
         </div>
         </section>
